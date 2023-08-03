@@ -1,0 +1,53 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Input Form</title>
+</head>
+<body>
+    <h1>Input Form</h1>
+    
+    <!-- Display the image -->
+    <img src="{% static 'pitz3b.jpg' %}" alt="Graphic schematic">
+    
+    <!-- Display the instructions -->
+    <p>Instructions: Your instructions go here.</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <label for="U"><it>U</it>:</label>
+        <input type="text" id="U" name="U" required title="Value must be between 0.1 and 20" value="{{ previous_input.U|default:'' }}"><br>
+
+        <label for="dx1">dx1:</label>
+        <input type="text" id="dx1" name="dx1" required title="Value must be between 10 and 100" value="{{ previous_input.dx1|default:'' }}"><br>
+
+        <label for="dx2">dx2:</label>
+        <input type="text" id="dx2" name="dx2" required title="Value must be between 100 and 1000" value="{{ previous_input.dx2|default:'' }}"><br>
+
+        <label for="dx3">dx3:</label>
+        <input type="text" id="dx3" name="dx3" required title="Value must be between 50 and 1000" value="{{ previous_input.dx3|default:'' }}"><br>
+
+        <label for="dy1">dy1:</label>
+        <input type="text" id="dy1" name="dy1" required title="Value must be between 10 and 100" value="{{ previous_input.dy1|default:'' }}"><br>
+
+        <label for="dy2">dy2:</label>
+        <input type="text" id="dy2" name="dy2" required title="Value must be between 10 and 100" value="{{ previous_input.dy2|default:'' }}"><br>
+
+        <input type="submit" value="Submit">
+    </form>
+
+    {% if error_message %}
+        <p style="color: red;">{{ error_message }}</p>
+    {% endif %}
+
+    <!-- Display the figures if they exist in the context -->
+    {% if figure1_filename and figure2_filename %}
+        <div>
+            <img src="{{ MEDIA_URL }}{{ figure1_filename }}" alt="Figure 1">
+            <img src="{{ MEDIA_URL }}{{ figure2_filename }}" alt="Figure 2">
+        </div>
+    {% endif %}
+
+
+</body>
+</html>
