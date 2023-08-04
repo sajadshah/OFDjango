@@ -9,5 +9,5 @@ The demo is set up on the pizDaily tutorial (axisymmetric 2D flow over backward 
 3) CFD solution (execute simpleFOAM)
 4) Post-processing (execute foamToVTK followed by custom code execution to produce png snapshots of velocity magnitude and static pressure)
 5) Feeding the flow field solution figures to the html template and re-render the user interface
-
-   
+  
+![312_U](https://github.com/immone-consulting-cae-pm/OFDjango/assets/140407231/acd6f736-7266-4c43-bb20-99e9135c5603)
