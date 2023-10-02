@@ -1,0 +1,111 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  9
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     simpleFoam;
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         2000;
+
+deltaT          1;
+
+writeControl    timeStep;
+
+writeInterval   99999;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  6;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+
+cacheTemporaryObjects
+(
+    kEpsilon:G
+);
+
+functions
+{
+    #includeFunc streamlines
+    
+     planes
+    {
+        type 			surfaces;
+        libs            ("libsampling.so");
+        functionObjectLibs ("libsampling.so");
+   	//writeControl	timeStep;
+	//writeInterval   	200;//100;
+	writeControl    adjustableRunTime; 
+	writeInterval   20;
+        surfaceFormat 	vtk;
+        interpolationScheme cellPoint;
+        fields
+        (
+            U
+            p 
+        );
+        surfaces
+        (
+
+      xy
+        {
+            type            cuttingPlane;
+            planeType       pointAndNormal;
+            interpolate     true;
+            store           true;
+            pointAndNormalDict
+            {
+                point   (0 0 0);
+                normal  (0 0 1);
+            }
+        }
+
+        );
+    }
+
+systemCall1
+    {
+        type        systemCall;
+        libs        ("libutilityFunctionObjects.so");
+        writeControl    adjustableRunTime; 
+  	writeInterval   20;
+        
+        executeCalls 0( );
+        writeCalls ("python3 vtk_to_png.py ");
+        endCalls ( "python3 vtk_to_png.py ");
+ //      outputControl outputTime;
+
+        
+    }
+    
+
+}
+
+
+// ************************************************************************* //
