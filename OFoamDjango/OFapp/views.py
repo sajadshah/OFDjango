@@ -40,7 +40,7 @@ def ResolveOpenFOAM(_U, _dx1, _dx2, _dx3, _dy1, _dy2):
 
 def input_form_view(request):
     context = {}  # Create a dictionary to hold context data
-
+    
     if request.method == 'POST':
         U = request.POST.get('U')
         dx1 = request.POST.get('dx1')
@@ -59,6 +59,16 @@ def input_form_view(request):
                 dy1 = float(dy1)
                 dy2 = float(dy2)
 
+                # Set previous input values in the context to pre-populate the form
+                context['previous_input'] = {
+                    'U': U,
+                    'dx1': dx1,
+                    'dx2': dx2,
+                    'dx3': dx3,
+                    'dy1': dy1,
+                    'dy2': dy2,
+                }
+                
                 # Check validity conditions
                 if 0.1 < U < 20 and 10 < dx1 < 100 and 100 < dx2 < 1000 and 50 < dx3 < 1000 and 10 < dy1 < 100 and 10 < dy2 < 100:
                     # Call your custom Python function here, passing the inputs as arguments
@@ -79,15 +89,6 @@ def input_form_view(request):
                 # Set an error message in the context
                 context['error_message'] = "Invalid input. Please enter valid numbers."
 
-            # Set previous input values in the context to pre-populate the form
-            context['previous_input'] = {
-                'U': U,
-                'dx1': dx1,
-                'dx2': dx2,
-                'dx3': dx3,
-                'dy1': dy1,
-                'dy2': dy2,
-            }
         else:
             # Set an error message in the context
             context['error_message'] = "Please fill in all the input fields."
@@ -103,4 +104,5 @@ def input_form_view(request):
         }
         
     # Pass the context to the template
+    print(context)
     return render(request, 'case_inputs.html', context)
