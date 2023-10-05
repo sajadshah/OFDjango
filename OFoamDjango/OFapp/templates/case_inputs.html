@@ -3,6 +3,7 @@
 <html>
 <head>
     <title>Input Form</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 </head>
 <body>
     <h1>Input Form</h1>
@@ -13,7 +14,7 @@
     <!-- Display the instructions -->
     <p>Instructions: Your instructions go here.</p>
 
-    <form method="post">
+    <form method="post" id="form1" action="/">
         {% csrf_token %}
         <label for="U"><it>U</it>:</label>
         <input type="text" id="U" name="U" required title="Value must be between 0.1 and 20" value="{{ previous_input.U|default:'' }}"><br>
@@ -36,18 +37,96 @@
         <input type="submit" value="Submit">
     </form>
 
+    <br> <img id="loading" src="static/loading.gif" style="width:50px; opacity: 0;"/>
+
     {% if error_message %}
         <p style="color: red;">{{ error_message }}</p>
     {% endif %}
 
     <!-- Display the figures if they exist in the context -->
-    {% if figure1_filename and figure2_filename %}
-        <div>
-            <img src="{{ MEDIA_URL }}{{ figure1_filename }}" alt="Figure 1">
-            <img src="{{ MEDIA_URL }}{{ figure2_filename }}" alt="Figure 2">
-        </div>
-    {% endif %}
+    
+    <div>
+        <img id="fig0_intermediate" src="" alt="Figure 0">
+        <img id="fig1" src="" alt="Figure 1">
+        <img id="fig2" src="" alt="Figure 2">
+    </div>
 
+    
+    <script>
+        function show_loading() {
+            $("#loading").css('opacity', 1);
+        }
+        function hide_loading() {
+            $("#loading").css('opacity', 0);
+        }
+        function disable_submit() {
+            $("#form1 input[type=submit]").prop("disabled", true)
+        }
+        function enable_submit() {
+            $("#form1 input[type=submit]").prop('disabled', false)
+        }
+        function clear_images() {
+            $("#fig0_intermediate").attr("src", "")
+            $("#fig1").attr("src", "")
+            $("#fig2").attr("src", "")
+        }
+
+        function check_for_latest_image() {
+            $.ajax({
+                    type: "GET",
+                    data: {},
+                    dataType: "json",
+                    url: "/get-intermediate-images",
+                    beforeSend: function (xhr) {},
+                    complete: function(xhr, status) {},
+                    success: function (result) {
+                        $("#fig0_intermediate").attr("src", result["latest"])
+                    }
+                });
+        }
+
+        function start_checking_for_latest_image() {
+            interval_var = setInterval(check_for_latest_image, 1000);
+        }
+
+        function stop_checking_for_latest_image() {
+            clearInterval(interval_var);
+        }
+
+        $(document).ready(function () {
+            $("#form1").submit(function(e) {
+                e.preventDefault(); // avoid to execute the actual submit of the form.
+                var form = $(this);
+                var actionUrl = form.attr('action');
+                $.ajax({
+                    type: "POST",
+                    data: form.serialize(), // serializes the form's elements.
+                    dataType: "json",
+                    url: "/",
+                    beforeSend: function (xhr) {
+                        clear_images();
+                        start_checking_for_latest_image();
+                        show_loading();
+                        disable_submit()
+                    },
+                    complete: function(xhr, status) {
+                        stop_checking_for_latest_image();
+                        hide_loading();
+                        enable_submit()
+                    },
+                    success: function (result) {
+                        fig1 = result["figure1_filename"]
+                        fig2 = result["figure1_filename"]
+                        $("#fig1").attr("src", fig1)
+                        $("#fig2").attr("src", fig2)
+                    }
+                });
+                
+
+
+            });
+        });
+    </script>
 
 </body>
 </html>

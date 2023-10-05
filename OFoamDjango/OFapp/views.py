@@ -1,9 +1,12 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 import os
+import glob
 from OFapp.utils.ParametricOpenFoamCaseExecution import ParametricOpenFoamCaseExecution
 from django.conf import settings
 import shutil
+import subprocess
+from functools import cmp_to_key
 
 def ResolveOpenFOAM(_U, _dx1, _dx2, _dx3, _dy1, _dy2):
     filename1 = ''
@@ -42,6 +45,8 @@ def input_form_view(request):
     context = {}  # Create a dictionary to hold context data
     
     if request.method == 'POST':
+        subprocess.run('rm -f ./media/*.png', shell=True, timeout=20)
+
         U = request.POST.get('U')
         dx1 = request.POST.get('dx1')
         dx2 = request.POST.get('dx2')
@@ -80,7 +85,7 @@ def input_form_view(request):
 
                     # You can return the result to the user or do anything else you want with it
                     # return HttpResponse(f"Result: Check the figures below.")
-                    return render(request, 'case_inputs.html', context)
+                    # return render(request, 'case_inputs.html', context)
                 
                 else:
                     # Set an error message in the context
@@ -92,6 +97,7 @@ def input_form_view(request):
         else:
             # Set an error message in the context
             context['error_message'] = "Please fill in all the input fields."
+        return JsonResponse(context)
     else:
         # Define your default values here
         context['previous_input'] = {
@@ -106,3 +112,17 @@ def input_form_view(request):
     # Pass the context to the template
     print(context)
     return render(request, 'case_inputs.html', context)
+
+
+def get_intermediate_images(request):
+    if request.method == 'GET':
+        subprocess.run('cp -r case/*.png ../media', shell=True, cwd=ParametricOpenFoamCaseExecution.path_to_case_root,timeout=20)
+        lf = glob.glob("media/*_xy.png")
+        lf = sorted(lf,  key=cmp_to_key(lambda x, y: int(x.split("_")[1]) - int(y.split("_")[1])))
+        latest = "" if len(lf) == 0 else lf[-1]
+        res = {
+            "files": lf,
+            "latest": latest
+        }
+        return JsonResponse(res)
+
