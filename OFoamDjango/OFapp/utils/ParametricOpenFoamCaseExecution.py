@@ -92,12 +92,13 @@ class ParametricOpenFoamCaseExecution:
 
     def visualize_vtk(self, scalarField='U'):
         import pyvista as pv
+        pv.start_xvfb()
         # Load the VTK file
         mesh = pv.read(ParametricOpenFoamCaseExecution.path_to_converged_VTK_solution_file)
 
         # Create a plotter and add the mesh with pressure data
         plotter = pv.Plotter(window_size=(ParametricOpenFoamCaseExecution.figure_width, ParametricOpenFoamCaseExecution.figure_height),off_screen=True)
-
+        pv.start_xvfb()
         # Add the mesh to the plotter with the pressure data and colormap
         mesh_actor = plotter.add_mesh(mesh, scalars=scalarField, cmap='viridis', show_edges=False)
 

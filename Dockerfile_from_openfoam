@@ -1,0 +1,24 @@
+FROM openfoam/openfoam7-paraview56
+
+USER root
+RUN apt-get update
+RUN apt-get install -y python3 python3-pip
+USER foam
+
+# RUN sh -c "wget https://bootstrap.pypa.io/get-pip.py"
+# RUN python3 get-pip.py
+
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTONUNBUFFERED 1
+
+WORKDIR /app
+
+COPY requirements.txt /app/
+RUN python3 -m pip install -r requirements.txt
+
+COPY . /app/
+WORKDIR /app/OFoamDjango
+
+CMD ["python3", "manage.py", "runserver", "0.0.0.0:8000"]
+
+EXPOSE 8000
